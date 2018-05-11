@@ -21,6 +21,8 @@ suicide_state_2016<-read.csv("/Users/rofrly/Dropbox/Nicolas shared folder/Mortal
 # from my laptop
 suicide_county_2016<-read.csv("/home/robert/Dropbox/Nicolas shared folder/Mortality by county/suicide_county_data_2016.csv")
 suicide_state_2016<-read.csv("/home/robert/Dropbox/Nicolas shared folder/Mortality by county/suicide_state_data_2016.csv")
+# new commit
+
 
 
 #load package dplyr
