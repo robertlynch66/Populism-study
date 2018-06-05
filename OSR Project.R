@@ -14,14 +14,13 @@
 suicide_county_2016<-read.csv("/Users/nick/Dropbox/Nicolas shared folder/Mortality by county/suicide_county_data_2016.csv")
 suicide_state_2016<-read.csv("/Users/nick/Dropbox/Nicolas shared folder/Mortality by county/suicide_state_data_2016.csv")
 
-# from U Turku windows desktop
-suicide_county_2016<-read.csv("/Users/rofrly/Dropbox/Nicolas shared folder/Mortality by county/suicide_county_data_2016.csv")
-suicide_state_2016<-read.csv("/Users/rofrly/Dropbox/Nicolas shared folder/Mortality by county/suicide_state_data_2016.csv")
 
-# from my laptop
-suicide_county_2016<-read.csv("/home/robert/Dropbox/Nicolas shared folder/Mortality by county/suicide_county_data_2016.csv")
-suicide_state_2016<-read.csv("/home/robert/Dropbox/Nicolas shared folder/Mortality by county/suicide_state_data_2016.csv")
-# new commit
+
+
+# read in frpom project directory
+suicide_county_2016<-read.csv("suicide_county_data_2016.csv")
+suicide_state_2016<-read.csv("suicide_state_data_2016.csv")
+
 
 
 
@@ -449,3 +448,7 @@ ggplot(data, aes(x=per_capita_suicides, y= percent, color=Candidate))+
                        breaks=c("clinton", "Clinton", "sanders","Trump"),
                        labels=c("Clinton primary", "Clinton general", "Sanders primary",
                                 "Trump general"))
+
+#data_list<-
+  #aggregated binomial
+#probability of trump vs total trials
