@@ -65,9 +65,7 @@ data$surplus_hillary2 <- data$clinton_primary-data$sanders_primary
 data$surplus_hillary2 <- data$surplus_hillary2 - min(data$surplus_hillary2, na.rm=T)
 
 
-# rescale and structure variables
-data$county_id <- as.factor(data$county_id)
-data$county_id <- coerce_index(data$county_id)
+# complete cases
 data_cc <- data[complete.cases(data),]
 
 #memodel <- glmer(cbind(clinton_16, trump_16) ~ log(pop_2014)+suicides_16 + (1|state), family = binomial, data=data,
@@ -90,12 +88,30 @@ cor(data2$pop_2014,data2,use = "complete.obs", method = "pearson")
 #  run offset model in rethinking
 #Compute the offset
 library(rethinking)
-data$log_pop<-log(data$pop_2014)
+data_cc$log_pop<-log(data_cc$pop_2014)
+data_cc$state_id <- coerce_index(data_cc$state)
+data_cc$surplus_hillary <- as.integer(data_cc$surplus_hillary)
+data_cc$surplus_hillary2 <- as.integer(data_cc$surplus_hillary2)
 # fit the model
 offset_model<-map2stan(
   alist(
-    surplus_hillary~dpois(lambda),
-    log(lambda)<- log_pop+a+b*suicides_16,
+    surplus_hillary2~dpois(lambda),
+    log(lambda) <- log_pop+a+bpb*perc_black,
+    # the prior for the intercepts mus be indexed too since we are doing them one at a time
+    a ~ dnorm (0,10), 
+    #a ~ dnorm (0,100),
+    bpb~ dnorm (0,10)
+  ), data=data_cc,start=list(bpb=0))
+
+
+
+library(rethinking)
+d$log_days<-log(d$days)
+# fit the model
+m10.15<-map2stan(
+  alist(
+    y~dpois(lambda),
+    log(lambda)<- log_days+a+b*monastery,
     a ~ dnorm (0,100),
     b ~ dnorm (0,1)
   ), data=d)
