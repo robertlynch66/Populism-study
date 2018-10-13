@@ -1,4 +1,53 @@
+saveRDS(data, "C:/Users/robert/Dropbox/Github/Populism_ms/pop_data.rds")
+write.csv(data, file = "C:/Users/robert/Dropbox/Github/Populism_ms/pop_data.csv")
 
+
+library(rethinking)
+library(dplyr)
+
+data <- readRDS("C:/Users/robert/Dropbox/Github/Populism_ms/pop_data.rds")
+# remove NA names
+data <- data[!is.na(names(data))]
+
+
+# get covariates you want and complete cases
+ data$trump_over_romney <- data$trump_16-data$romney_12
+ data$trump_over_mccain <- data$trump_16-data$mccain_08
+ data$trump_over_hillary <- data$trump_16-data$clinton_16
+ 
+ #drugs over time
+ data$drug_16_over_08 <-(data$drug_16-data$drug_08)/(data$pop_2010)
+ 
+ 
+# correaltion matrix function
+ flattenCorrMatrix <- function(cormat, pmat) {
+   ut <- upper.tri(cormat)
+   data.frame(
+     row = rownames(cormat)[row(cormat)[ut]],
+     column = rownames(cormat)[col(cormat)[ut]],
+     cor  =(cormat)[ut],
+     p = pmat[ut]
+   )
+ }
+ 
+ 
+ # select variables
+
+ data_cc <- data %>% select ("trump_over_romney","trump_over_mccain","trump_over_hillary","perc_white","pop_2010",
+                             "alcohol_16_scaled","suicides_16_scaled","drug_16_scaled","soc_cap_indx_14","diversity_idx_2016",
+                             "drug_16_over_08")
+ data_cc <- data_cc[complete.cases(data_cc),]
+ 
+ # one variable against all others
+ COR <- cor(as.matrix(df[,1]), as.matrix(df[,-1]))
+
+# get correaltions between matrix and a sinle variable
+ apply(data_cc,2, function(col)cor(col, data_cc$drug_16_over_08))
+ 
+ 
+ 
+ 
+data <- data %>% 
 
 votes<-map(
   alist(
