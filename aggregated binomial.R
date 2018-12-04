@@ -371,7 +371,7 @@ data$value <- data$sanders_over_hillary
 map_sanders_over_hillary <- county_choropleth(data)
 
 # put maps side by side
-library(gridExtra)
+flibrary(gridExtra)
 
 # Graph the two maps (democratic_map and white_map) from the previous exercises side-by-side
 grid.arrange(map_trump_over_hillary, map_sanders_over_hillary)

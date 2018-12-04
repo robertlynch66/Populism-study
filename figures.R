@@ -509,3 +509,7 @@ m2 <- betareg(sanders_perc_16 ~ drug_16_over_08+alcohol_16_over_08+
  bmaps <- grid.arrange(sk_map, suicides)
  ggsave(bmaps, filename = "Figure 2.png", width = 6, height = 4, device = "png", dpi = 600,units = "in")
  
+ library(wCorr)
+ weightedCorr(data$sk2014_over_2005,data$suicides_16_over_08,weights=data$pop_2014, na.rm=T)
+ wtd.cors(data$sk2014_over_2005,data$suicides_16_over_08,weight=data$pop_2014)
+ 
