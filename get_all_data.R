@@ -142,7 +142,9 @@ newdata <- newdata %>% left_join (sk9, by=c("county"="county","state"="state"))
 # read in sk14
 sk14 <- read.csv("original data files/social_capital.csv") %>% as.data.frame()
 sk14 <- sk14 %>% select ("county","state","sk2014")
-sk14$state<-abbr2state(sk14$state)
+sk14$state <- as.character(sk14$state)
+sk14$state <- gsub(" ","",sk14$state, fixed=TRUE)
+sk14$state <- abbr2state(sk14$state)
 sk14$county <- tolower(sk14$county)
 sk14$state <- tolower(sk14$state)
 sk14$county <- gsub(" ","",sk14$county, fixed=TRUE)
@@ -177,7 +179,7 @@ county_pop_16 <- get_decennial(geography = "county",
                            variables = "P001001")
 
 # link pop to data
-county_pop_16 <- county_pop_16 %>% select ("NAME", "value") %>% as.data.frame()
+county_pop_16 <- county_pop_16 %>% select ("GEOID","NAME", "value") %>% as.data.frame()
 county_pop_16<- county_pop_16 %>%
   separate(NAME, c("county", "state"), ", ")
 county_pop_16$county <- tolower(county_pop_16$county)
@@ -278,13 +280,18 @@ new_data16$county <- gsub("parish","",new_data16$county)
 new_data16$county <- gsub("county","",new_data16$county)
 new_data16 <- new_data16 [!duplicated(new_data16[c(1,2)]),]
 
-# fix numbver obama and mccain 08
-newdata$mccain_08 <- as.numeric(newdata$McCain_08)
-newdata$obama_08 <- as.numeric(newdata$Obama_08)
+# fix number obama and mccain 08
+as.numeric(gsub(",", "", y))
+newdata$mccain_08 <- as.numeric(gsub(",","",newdata$McCain_08))
+newdata$obama_08 <- as.numeric(gsub(",","",newdata$Obama_08))
 newdata$Obama_08 <- NULL
 newdata$McCain_08 <- NULL
 newdata <- newdata %>% left_join (new_data16, by=c("county"="county","state"="state"))
-saveRDS(newdata, "newdata.rds")
+## get social capital 2014
+
+
+saveRDS(newdata, "../data files/populism_data_new.rds")
+
 ############################
 ############################
 ############################
@@ -293,8 +300,8 @@ saveRDS(newdata, "newdata.rds")
 ############################
 ############################
 ############################
-### you can starte here reading in newdata
-data <- readRDS("newdata.rds")
+### you can start here reading in newdata
+data <- readRDS("../data files/populism_data_new.rds")
 
 #This is the end - makes variabeks as required for models
 ####################################
@@ -306,7 +313,7 @@ data <- readRDS("newdata.rds")
 ####################################
 ####################################
 
-# Standardize and compute precentage, chnages etc.. depending on needs for model
+# Standardize and compute percentage, changes etc.. depending on needs for model
 # scale social capital index
 data$soc_cap_indx_14 <- data$soc_cap_indx_14 -min(data$soc_cap_indx_14,na.rm=T)
 data$soc_cap_indx_14 <- data$soc_cap_indx_14/(max(data$soc_cap_indx_14,na.rm=T))

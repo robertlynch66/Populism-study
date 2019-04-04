@@ -48,8 +48,10 @@ plot(foreign_born["estimate"])
 fb_percentage <- foreign_born %>% 
   mutate(pct=100 * (estimate/ summary_est))
 
+
+fb_percentage <- as.data.frame(fb_percentage)
 ## plot this for static map
-plot(fb_percentage["pct"])
+d <-plot(fb_percentage["pct"])
 
 # make web based interactive map
 
@@ -71,7 +73,7 @@ education <- get_acs(geography = "county",
                      summary_var = "B15003_001") %>%
   mutate(percent = 100 * (estimate / summary_est)) %>% as.data.frame()
 
-# make some gorups out of the education cats
+# make some groups out of the education cats
 ed_groups <- education %>%
   filter(variable != "B15003_001") %>%
   # the case_when function allows you to choose the cases to include in the newly created variable
@@ -119,7 +121,8 @@ dot_plot <- map(c(1,2,3,4,5,6), function(group) {
 
 w <- ggplot() + 
   # geom_sf(data = dc_boundary, color = NA, fill = "white") + 
-  geom_sf(data = dot_plot, aes(fill=as.factor(group),color = as.factor(group)), size = 0.1)+
+  geom_sf(data = dot_plot, aes(geometry=fill=as.factor(group),color = as.factor(group)), size = 0.1)+
+  aes(geometry = my_column)
   scale_fill_manual("Education level", 
                      breaks = c(1,2,3,4,5,6),
                      values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"),
