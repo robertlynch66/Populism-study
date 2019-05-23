@@ -63,7 +63,7 @@ M1 <- readRDS("../../Populism ms files/Model results/trump_vs_clinton_change_onl
 
 #M1 <- readRDS("../../Populism ms files/Model results/trump_vs_cruz_change_only_rstanarm4.rds")
 
-#M1 <- readRDS("../../Populism ms files/Model results/trump_vs_kasich_change_only_rstanarm4.rds")
+#M1 <- readRDS("../../Populism ms files/Model results/trump_vs_kasich_change_only_rstanarm7.rds")
 
 pr <- c( 0.25, 0.5, 0.75)
 
@@ -80,7 +80,7 @@ us_fb_change <- sum(p$for_born_16_to_10*p$pop_16)/mean(p$pop_16)/nrow(p)
 us_alcho_change <- sum(p$alcohol_16_to_8*p$pop_16)/mean(p$pop_16)/nrow(p)
 us_drug_change <- sum(p$drugs_16_to_8*p$pop_16)/mean(p$pop_16)/nrow(p)
 us_suicide_change <- sum(p$suicides_16_to_8*p$pop_16)/mean(p$pop_16)/nrow(p)  
-us_white_change <- sum(p$white_16_to_8*p$pop_16)/mean(p$pop_16)/nrow(p) 
+us_white_change <- sum(p$white_16_to_10*p$pop_16)/mean(p$pop_16)/nrow(p) 
 
 ps <- data.frame(
   trump_votes = rep(0,41),
@@ -296,7 +296,7 @@ library(rstanarm)
 # read in the rstanarm object
 #M1 <- readRDS("../../Populism ms files/Model results/trump_vs_clinton_change_only_rstanarm3.rds")
 #M1 <- readRDS("../../Populism ms files/Model results/sanders_vs_clinton_change_only_rstanarm3.rds")
-M1 <- readRDS("../../Populism ms files/Model results/trump_vs_kasich_change_only_rstanarm4.rds")
+M1 <- readRDS("../../Populism ms files/Model results/trump_vs_kasich_change_only_rstanarm7.rds")
 #us_white_change <- sum(p$white_16_to_10*p$pop_16)/mean(p$pop_16)/nrow(p)  
 #25%          50%          75% 
 #0.006032245 0.015262186 0.024444660
@@ -306,11 +306,11 @@ ps <- data.frame(
   sk_change=rep(us_sk_change,41),
   pop_change=rep(us_pop_change,41),
   median_hh_income_change = rep(us_hhi_change,41),
-  perc_bachelors_change = rep(0.024444660 ,41),
+  perc_bachelors_change = rep(us_bach_change ,41),
   male_unemplmt_change = rep(us_male_u_change,41),
   female_unemplmt_change = rep(us_female_u_change,41),
   for_born_change = rep(us_fb_change,41),
-  alcohol_change = rep(us_alcho_change,41),
+  alcohol_change = rep(-0.21,41),
   white_change = rep (us_white_change,41),
   drugs_change = rep(us_drug_change,41),
   suicides_change = rep(us_suicide_change,41)) %>% as.data.frame()
@@ -441,9 +441,82 @@ mean(s_mu$upper)
 ##########################################
 ############################################
 ##############################################
-# get the R squared out of rstanarm
-stan_model <- stan_glm(mpg ~ wt, data = mtcars)
+# get the R squared out of rstanarm models
 
 ss_res <- var(residuals(m1))
 ss_total <- var(fitted(m1)) + var(residuals(m1))
 1 - (ss_res / ss_total)
+
+# R squared and LOO
+library("rprojroot")
+root<-has_dirname("RAOS-Examples")$make_fix_file()
+library("rstanarm")
+options(mc.cores = parallel::detectCores())
+library("loo")
+library("ggplot2")
+library("bayesplot")
+theme_set(bayesplot::theme_default(base_family = "sans"))
+library("latex2exp")
+library("foreign")
+library("bayesboot")
+
+# load functions
+
+#' **Bayes-R2 function using residuals**
+bayes_R2_res <- function(fit) {
+  y <- rstanarm::get_y(fit)
+  ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
+  if (family(fit)$family == "binomial" && NCOL(y) == 2) {
+    trials <- rowSums(y)
+    y <- y[, 1]
+    ypred <- ypred %*% diag(trials)
+  }
+  e <- -1 * sweep(ypred, 2, y)
+  var_ypred <- apply(ypred, 1, var)
+  var_e <- apply(e, 1, var)
+  var_ypred / (var_ypred + var_e)
+}
+
+#' **Bayes-R2 function using modelled (approximate) residual variance**
+bayes_R2 <- function(fit) {
+  mupred <- rstanarm::posterior_linpred(fit, transform = TRUE)
+  var_mupred <- apply(mupred, 1, var)
+  if (family(fit)$family == "binomial" && NCOL(y) == 1) {
+    sigma2 <- apply(mupred*(1-mupred), 1, mean)
+  } else {
+    sigma2 <- as.matrix(fit, pars = c("sigma"))^2
+  }
+  var_mupred / (var_mupred + sigma2)
+}
+
+#' **LOO-R2 function using LOO-residuals and Bayesian bootstrap**
+loo_R2 <- function(fit) {
+  y <- get_y(fit)
+  ypred <- posterior_linpred(fit, transform = TRUE)
+  ll <- log_lik(fit)
+  M <- length(fit$stanfit@sim$n_save)
+  N <- fit$stanfit@sim$n_save[[1]]
+  r_eff <- relative_eff(exp(ll), chain_id = rep(1:M, each = N))
+  psis_object <- psis(log_ratios = -ll, r_eff = r_eff)
+  ypredloo <- E_loo(ypred, psis_object, log_ratios = -ll)$value
+  eloo <- ypredloo-y
+  n <- length(y)
+  rd<-rudirichlet(4000, n)
+  vary <- (rowSums(sweep(rd, 2, y^2, FUN = "*")) -
+             rowSums(sweep(rd, 2, y, FUN = "*"))^2)*(n/(n-1))
+  vareloo <- (rowSums(sweep(rd, 2, eloo^2, FUN = "*")) -
+                rowSums(sweep(rd, 2, eloo, FUN = "*")^2))*(n/(n-1))
+  looR2 <- 1-vareloo/vary
+  looR2[looR2 < -1] <- -1
+  looR2[looR2 > 1] <- 1
+  return(looR2)
+}
+# Bayes-R2 function using residuals
+round(median(bayesR2res<-bayes_R2_res(M1)), 2)
+
+#Bayes-R2 function using modelled (approximate) residual variance
+round(median(bayesR2<-bayes_R2(M1)), 2)
+
+##LOO-R2 function using LOO-residuals and Bayesian bootstrap
+looR2<-loo_R2(M1)
+round(median(looR2), 2)

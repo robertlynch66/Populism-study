@@ -267,7 +267,8 @@ p4$mort_cat = factor(p4$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','su
 pred_df2$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 
 
-
+#subset predicted line (shorten it)
+pred_df2 <- pred_df2[c(8:30,57:68,85:110,142:155), ]
 
 # inset plot
 facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_trump_percent, colour=mort_cat)) + 
@@ -304,7 +305,7 @@ facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_trump_percent, colour
                      labels=c('40%','45%','50%','55%','60%'))+
   
   
-  scale_x_continuous(name="Change in deaths per 100k and\nsocial capital index between 2008 and 2016",
+  scale_x_continuous(name="Change in deaths per 100k and\nthe social capital index",
                      limits=c(-40,40), breaks=c(-40,-20,0,20,40),labels=c('Q1','Q2','Q3','Q4','Q5'))+
   
   guides(color=guide_legend("95% Crediblity Intervals"))+
@@ -691,7 +692,8 @@ p4$mort_cat = factor(p4$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','su
 pred_df2$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 
 
-
+#subset predicted line (shorten it)
+pred_df2 <- pred_df2[c(8:30,57:68,85:110,142:155), ]
 
 # inset plot
 facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_sanders_percent, colour=mort_cat)) + 
@@ -728,7 +730,7 @@ facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_sanders_percent, colo
                      labels=c('35%','40%','45%','50%'))+
   
   
-  scale_x_continuous(name="Change in deaths per 100k and\nsocial capital index between 2008 and 2016",
+  scale_x_continuous(name="Change in deaths per 100k and\nthe social capital index",
                      limits=c(-40,40), breaks=c(-40,-20,0,20,40),labels=c('Q1','Q2','Q3','Q4','Q5'))+
   
   guides(color=guide_legend("95% Crediblity Intervals"))+
@@ -827,7 +829,7 @@ inset_1 <-
   draw_plot(facet_plot_inset_1,  x = 0.86, y = .05, width = .14, height = .22)
 inset_1
 ## save it
-ggsave(filename = "sanders_clinton_predictions.with.inset2.png", 
+ggsave(filename = "sanders_clinton_predictions.with.inset.png", 
        plot = inset_1,
        width = 36, 
        height = 12,
@@ -1116,7 +1118,7 @@ library(cowplot)
 
 
 
-### my plots ###########################  Clinton Trump#######
+### my plots ###########################  Cruz Trump#######
 ### Based on predictions
 p1$mort_cat = factor(p1$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 pred_df$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
@@ -1128,7 +1130,8 @@ p4 <- transform(p1, new_mort=ifelse(mort_cat=="sk2014_over_2005", mort*359/19,
 p4$mort_cat = factor(p4$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 pred_df2$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 
-
+#subset predicted line (shorten it)
+pred_df2 <- pred_df2[c(8:30,57:68,85:110,142:155), ]
 
 
 # inset plot
@@ -1166,7 +1169,7 @@ facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_trump_percent, colour
                      labels=c('60%','65%','70%'))+
   
   
-  scale_x_continuous(name="Change in deaths per 100k and\nsocial capital index between 2008 and 2016",
+  scale_x_continuous(name="Change in deaths per 100k and\nthe social capital index between",
                      limits=c(-40,40), breaks=c(-40,-20,0,20,40),labels=c('Q1','Q2','Q3','Q4','Q5'))+
   
   guides(color=guide_legend("95% Crediblity Intervals"))+
@@ -1557,7 +1560,7 @@ library(cowplot)
 
 
 
-### my plots ###########################  Clinton Trump#######
+### my plots ###########################  Kasich Trump#######
 ### Based on predictions
 p1$mort_cat = factor(p1$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 pred_df$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
@@ -1569,7 +1572,8 @@ p4 <- transform(p1, new_mort=ifelse(mort_cat=="sk2014_over_2005", mort*359/19,
 p4$mort_cat = factor(p4$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 pred_df2$mort_cat = factor(pred_df$mort_cat, levels=c('drugs_16_to_8','alcohol_16_to_8','suicides_16_to_8','sk2014_over_2005'))
 
-
+#subset predicted line (shorten it)
+pred_df2 <- pred_df2[c(8:30,57:68,85:110,142:155), ]
 
 
 # inset plot
@@ -1607,7 +1611,7 @@ facet_plot_main_1 <- ggplot(p4, aes(x=new_mort,y=predicted_trump_percent, colour
                      labels=c('75%','80%','85%'))+
   
   
-  scale_x_continuous(name="Change in deaths per 100k and\nsocial capital index between 2008 and 2016",
+  scale_x_continuous(name="Change in deaths per 100k and\nthe social capital index",
                      limits=c(-40,40), breaks=c(-40,-20,0,20,40),labels=c('Q1','Q2','Q3','Q4','Q5'))+
   
   guides(color=guide_legend("95% Crediblity Intervals"))+
@@ -1728,7 +1732,7 @@ library(dplyr)
 library(ggplot2)
 # read in the geom file
 p <- readRDS("../data files/populism_data_w_geom.rds")
-
+#### get rid of some variables
 # make populist counties variable (2=populist, 1=traditonal 0= neutral)
 #p$populist  <- ifelse(p$trump_16 > p$clinton_16 &  p$sanders_primary1 > p$clinton_primary1 & p$obama_08 >p$mccain_08 , 2,
  #                     ifelse(p$trump_16 < p$clinton_16 & p$sanders_primary1 < p$clinton_primary1 ,1,0))

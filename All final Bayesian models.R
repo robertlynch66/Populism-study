@@ -4,6 +4,8 @@
 ######################################
 ########################################
 ###########################################
+library(dplyr)
+library(rstanarm)
 # for convenience - comment out
 p<- readRDS("../data files/populism_data_new2.rds")
 ####################################
@@ -50,12 +52,12 @@ p$trump_votes<- as.integer(p$trump_16)
 p$clinton_votes <- as.integer(p$clinton_16)
 
 
+
 #model3<-glm(cbind(trump_primary_votes,(trump_primary_votes+cruz_votes)) ~ sk2014_over_2005 + pop_change_16_to_10+
 # median_hh_income_16_to_10+
 #bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
 # drugs_16_to_8+suicides_16_to_8 + sk2014+ diversity16+                  
 #pop_16+median_hh_income_16+white_16+bachelors_16+male_unemplmt_16+female_unemplmt_16,family=binomial, data=p)
-
 
 # check variance inflation factors
 #library(car)
@@ -292,3 +294,90 @@ path<- (paste0("results/"))
 filename <- "trump_vs_kasich_change_only_rstanarm7.rds"
 
 saveRDS(model, paste0(path, filename))
+
+
+
+# test for homogeneity of variance of predictors
+library(dplyr)
+p<- readRDS("../data files/populism_data_new2.rds")
+p <- p%>% select(3:6,55:66)
+p <- p[complete.cases(p),]
+
+p$trump_percent<- p$trump_16/(p$clinton_16+p$trump_16)
+bartlett.test(trump_percent ~ interaction(sk2014_over_2005,pop_change_16_to_10,median_hh_income_16_to_10,white_16_to_10,
+bachelors_16_to_10,male_unemplmt_16_to_10,female_unemplmt_16_to_10,for_born_16_to_10,alcohol_16_to_8,drugs_16_to_8,             suicides_16_to_8), data=p)
+
+bartlett.test(trump_percent ~ interaction(sk2014_over_2005,pop_change_16_to_10), data=p)
+
+
+#### get the relationship between cancer and populist votes
+#### 
+library(dplyr)
+p<- readRDS("../data files/populism_data_new2.rds")
+p <- p%>% select(1:6,17,20,37,47,55:66)
+p <- p[complete.cases(p),]
+# read in new cancer data
+c <- read.csv("../data files/cancer_deaths.csv", na.strings=c("Suppressed","Missing"))
+
+# change all counties to characters
+c$County <- as.character(c$County)    
+c$State <- as.character(c$State) 
+c$county<-gsub(" ","",social_cap$county, fixed=TRUE)
+
+## # get counties seperated and spelled right
+library(openintro)
+library(tidyr)
+c <- c %>% separate(County, 
+                c("county", "name","state"))
+c$state <- tolower(c$State)
+c$county<-tolower(c$county)
+c$cancer_2008 <- as.numeric(c$cancer_2008)
+c$cancer_2016 <- as.numeric(c$cancer_2016)
+c$State <- NULL
+c$name <- NULL
+
+
+# join dfs
+data<-left_join(p, c, by=c("state", "county"))
+
+data$cancer_16_to_8 <- (data$cancer_2016/data$pop16E)*10e4-(data$cancer_2008/data$pop10E)*10e4
+
+# run models (all 3) against cancer
+
+model<-glm(cbind(trump_16,clinton_16) ~ sk2014_over_2005 + pop_change_16_to_10+
+median_hh_income_16_to_10+
+bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+drugs_16_to_8+suicides_16_to_8,family=binomial, data=data)
+summary(model)
+
+model2<-glm(cbind(trump_16,clinton_16) ~ sk2014_over_2005 + pop_change_16_to_10+
+             median_hh_income_16_to_10+
+             bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+             drugs_16_to_8+suicides_16_to_8+cancer_16_to_8,family=binomial, data=data)
+summary(model2)
+
+# Sanders
+model<-glm(cbind(sanders_primary1,clinton_primary1) ~ sk2014_over_2005 + pop_change_16_to_10+
+             median_hh_income_16_to_10+
+             bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+             drugs_16_to_8+suicides_16_to_8,family=binomial, data=data)
+summary(model)
+
+model2<-glm(cbind(sanders_primary1,clinton_primary1) ~ sk2014_over_2005 + pop_change_16_to_10+
+              median_hh_income_16_to_10+
+              bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+              drugs_16_to_8+suicides_16_to_8+cancer_16_to_8,family=binomial, data=data)
+summary(model2)
+
+# kasich
+model<-glm(cbind(trump_primary_votes,kasich_votes ) ~ sk2014_over_2005 + pop_change_16_to_10+
+             median_hh_income_16_to_10+
+             bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+             drugs_16_to_8+suicides_16_to_8,family=binomial, data=data)
+summary(model)
+
+model2<-glm(cbind(trump_primary_votes,kasich_votes) ~ sk2014_over_2005 + pop_change_16_to_10+
+              median_hh_income_16_to_10+
+              bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
+              drugs_16_to_8+suicides_16_to_8+cancer_16_to_8,family=binomial, data=data)
+summary(model2)

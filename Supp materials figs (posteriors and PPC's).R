@@ -24,8 +24,6 @@ p$drugs_16_to_8 <- (p$drug_16/p$pop16E)*10e4-(p$drug_08/p$pop10E)*10e4
 p$suicides_16_to_8 <- (p$suicides_16/p$pop16E)*10e4-(p$suicides_08/p$pop10E)*10e4
 
 
-# fixed rates and percentage 2016
-
 
 
 p <- p %>% select ("county","state","white_16_to_10",
