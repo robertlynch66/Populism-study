@@ -381,3 +381,15 @@ model2<-glm(cbind(trump_primary_votes,kasich_votes) ~ sk2014_over_2005 + pop_cha
               bachelors_16_to_10+male_unemplmt_16_to_10+female_unemplmt_16_to_10+for_born_16_to_10+alcohol_16_to_8+
               drugs_16_to_8+suicides_16_to_8+cancer_16_to_8,family=binomial, data=data)
 summary(model2)
+
+
+###########################Structural equation models
+# Load the lavaan library
+library(lavaan)
+
+# Look at the dataset
+data(p)
+head(p)
+
+# Define your model specification
+model <- 'latent=~suicides16+for_born_16+suicides_16_to_8+log_pop_16'
